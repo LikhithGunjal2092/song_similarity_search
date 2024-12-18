@@ -1,0 +1,30 @@
+<!-- templates/results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Similar Songs Results</title>
+</head>
+<body>
+    <h1>Similar Songs</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                {% for column in data[0].keys() %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% for value in row.values() %}
+                <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/">Search Again</a>
+</body>
+</html>
