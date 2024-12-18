@@ -11,7 +11,7 @@ grant usage on warehouse compute_wh to role searchapp;
 
 
 create user searchappuser
-password = 'strongpassword123!'  
+password = ''  
 default_role = searchapp            
 default_warehouse = compute_wh 
 default_namespace = spotify.staging  
