@@ -89,3 +89,13 @@ create or replace table staging.feature_vector
     ,artist_name varchar 
     ,feature_vector vector(float,11)
 );
+
+create or replace table spotify.analytics.song_search_times 
+(
+    search_id int autoincrement(1,1),
+    track_id varchar,
+    song_name varchar,
+    search_time_ms float,
+    warehouse_size varchar
+    
+);
