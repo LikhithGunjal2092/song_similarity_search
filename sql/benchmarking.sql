@@ -6,20 +6,21 @@ declare start_time timestamp_ntz;
         elapsed_time_ms float;
         song_name varchar;
         track_id varchar;
-        song_cursor cursor for select track_id,song_name  from  spotify.analytics.song_search_times where  warehouse_size='Small';
+        song_cursor cursor for select track_id,song_name  from  spotify.analytics.song_search_times where  warehouse_size='small';-- cursor to fetch song names from the source table
 
 
 begin
-    -- cursor to fetch song names from the source table
+    -- switching off query cache to measure real search time
     alter session set use_cached_result=false;
-    for record in song_cursor-- adjust 'songs_table' and 'song_column'
+
+    for record in song_cursor
         do
             song_name := record.song_name;
             
             -- start timing
             start_time := current_timestamp();
     
-            -- perform the search (replace 'songs_table' with the table you're querying)
+            -- perform the search
             call spotify.staging.find_similar_song('%'||:song_name||'%');
     
             -- end timing
@@ -37,13 +38,13 @@ begin
                 , search_time_ms = :elapsed_time_ms
                
             where track_id = :track_id
-            and warehouse_size= 'Small';
+            and warehouse_size= 'small';
 
     end for;
 end;
 
 
--- average search time comparison
+-- average search time and cost comparison
 with small as 
 (
     select * 
@@ -70,5 +71,10 @@ with small as
         on s.track_id = m.track_id
 
 )
-select avg(difference_percentage)
+select avg(medium_search_time) as average_medium_search_time
+      ,avg(small_search_time) as average_small_search_time
+      ,avg(round(difference_percentage,2)) as percent_diff_bw_medium_and_small
+      ,4*sum(medium_search_time)/3600000 as cost_per1000_medium_search -- query cost  in credits for medium warehouse search on sample dataset (4 credits/hour)
+      ,2*sum(small_search_time)/3600000  as cost_per1000_small_search -- query cost in credits for small warehouse search on sample dataset (2 credits/hour)
+      ,(2*sum(medium_search_time) - sum(small_search_time))/(sum(small_search_time)) as percent_cost_difference
 from search_time;
