@@ -90,7 +90,7 @@ create or replace table staging.feature_vector
     ,feature_vector vector(float,11)
 );
 
-create or replace table spotify.analytics.song_search_times 
+create or replace table analytics.song_search_times 
 (
     search_id int autoincrement(1,1),
     track_id varchar,
