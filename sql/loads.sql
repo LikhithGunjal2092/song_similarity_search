@@ -53,3 +53,22 @@ from staging.features f
 inner join staging.albums a
     on a.track_id = f.id;
 
+
+--- insert sample song subset for benchmarking into analytics.song_search_times
+
+insert into analytics.song_search_times(track_id,song_name,warehouse_size)
+select track_id,track_name,'Small'  from spotify.staging.feature_vector where len(track_name)>2  and regexp_like(collate(track_name,''), '[a-zA-Z]+')  limit 1000;
+
+insert into analytics.song_search_times(track_id,song_name,warehouse_size)
+select track_id,song_name,'Medium'
+from spotify.analytics.song_search_times 
+where warehouse_size = 'Small'
+order by track_id
+limit 1000;
+
+insert into analytics.song_search_times(track_id,song_name,warehouse_size)
+select track_id,song_name,'Large'
+from spotify.analytics.song_search_times
+where warehouse_size = 'Small'
+order by track_id,warehouse_size
+limit 1000;
